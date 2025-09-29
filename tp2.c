@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Structures pour les différents types de listes
+// Structures pour les listes
 typedef struct NodeSimple {
     int data;
     struct NodeSimple* next;
@@ -13,9 +13,7 @@ typedef struct NodeDouble {
     struct NodeDouble* prev;
 } NodeDouble;
 
-
 // 1. SUPPRESSION DE TOUTES LES OCCURRENCES DANS UNE LISTE SIMPLE
-
 
 NodeSimple* supprimerOccurrences(NodeSimple* head, int element) {
     NodeSimple* current = head;
@@ -43,9 +41,7 @@ NodeSimple* supprimerOccurrences(NodeSimple* head, int element) {
     return head;
 }
 
-
 // 2. INSERTION DANS UNE LISTE SIMPLEMENT CHAÎNÉE TRIÉE
-
 
 NodeSimple* insererTrieSimple(NodeSimple* head, int element) {
     NodeSimple* nouveau = (NodeSimple*)malloc(sizeof(NodeSimple));
@@ -71,7 +67,6 @@ NodeSimple* insererTrieSimple(NodeSimple* head, int element) {
     return head;
 }
 
-
 // 3. INSERTION DANS UNE LISTE DOUBLEMENT CHAÎNÉE TRIÉE
 
 NodeDouble* insererTrieDouble(NodeDouble* head, int element) {
@@ -80,25 +75,22 @@ NodeDouble* insererTrieDouble(NodeDouble* head, int element) {
     nouveau->next = NULL;
     nouveau->prev = NULL;
     
-    // Liste vide
     if (head == NULL) {
         return nouveau;
     }
     
-    // Insertion en tête
     if (head->data >= element) {
         nouveau->next = head;
         head->prev = nouveau;
         return nouveau;
     }
-    
-    // Trouver la position d'insertion
+
     NodeDouble* current = head;
     while (current->next != NULL && current->next->data < element) {
         current = current->next;
     }
     
-    // Insérer après current
+   
     nouveau->next = current->next;
     nouveau->prev = current;
     
@@ -110,7 +102,6 @@ NodeDouble* insererTrieDouble(NodeDouble* head, int element) {
     return head;
 }
 
-
 // 4. INSERTION TÊTE/QUEUE LISTE SIMPLEMENT CHAÎNÉE CIRCULAIRE
 
 NodeSimple* insererTeteCirculaireSimple(NodeSimple* head, int element) {
@@ -118,7 +109,7 @@ NodeSimple* insererTeteCirculaireSimple(NodeSimple* head, int element) {
     nouveau->data = element;
     
     if (head == NULL) {
-        nouveau->next = nouveau; // Pointe sur lui-même
+        nouveau->next = nouveau; 
         return nouveau;
     }
     
@@ -131,7 +122,7 @@ NodeSimple* insererTeteCirculaireSimple(NodeSimple* head, int element) {
     nouveau->next = head;
     dernier->next = nouveau;
     
-    return nouveau; // Le nouveau nœud devient la tête
+    return nouveau; 
 }
 
 NodeSimple* insererQueueCirculaireSimple(NodeSimple* head, int element) {
@@ -152,9 +143,8 @@ NodeSimple* insererQueueCirculaireSimple(NodeSimple* head, int element) {
     nouveau->next = head;
     dernier->next = nouveau;
     
-    return head; // La tête reste inchangée
+    return head; 
 }
-
 
 // 5. INSERTION TÊTE/QUEUE LISTE DOUBLEMENT CHAÎNÉE CIRCULAIRE
 
@@ -175,7 +165,7 @@ NodeDouble* insererTeteCirculaireDouble(NodeDouble* head, int element) {
     head->prev = nouveau;
     dernier->next = nouveau;
     
-    return nouveau; // Le nouveau nœud devient la tête
+    return nouveau; 
 }
 
 NodeDouble* insererQueueCirculaireDouble(NodeDouble* head, int element) {
@@ -195,7 +185,111 @@ NodeDouble* insererQueueCirculaireDouble(NodeDouble* head, int element) {
     head->prev = nouveau;
     dernier->next = nouveau;
     
-    return head; // La tête reste inchangée
+    return head; 
+}
+
+// FONCTIONS DE TRI
+
+// Vérifier si la liste simple est triée
+int estTrieSimple(NodeSimple* head) {
+    if (head == NULL || head->next == NULL) {
+        return 1; // Liste vide ou un seul élément = triée
+    }
+    
+    NodeSimple* current = head;
+    while (current->next != NULL) {
+        if (current->data > current->next->data) {
+            return 0; // Pas triée
+        }
+        current = current->next;
+    }
+    return 1; 
+}
+
+// Vérifier si la liste double est triée
+int estTrieDouble(NodeDouble* head) {
+    if (head == NULL || head->next == NULL) {
+        return 1;
+    }
+    
+    NodeDouble* current = head;
+    while (current->next != NULL) {
+        if (current->data > current->next->data) {
+            return 0;
+        }
+        current = current->next;
+    }
+    return 1;
+}
+
+// Trier une liste simple (tri par insertion)
+NodeSimple* trierListeSimple(NodeSimple* head) {
+    if (head == NULL || head->next == NULL) {
+        return head;
+    }
+    
+    NodeSimple* triee = NULL; // Nouvelle liste triée
+    NodeSimple* current = head;
+    
+    while (current != NULL) {
+        NodeSimple* next = current->next; // Sauvegarder le suivant
+        
+        // Insérer current dans la liste triée
+        if (triee == NULL || triee->data >= current->data) {
+            current->next = triee;
+            triee = current;
+        } else {
+            NodeSimple* temp = triee;
+            while (temp->next != NULL && temp->next->data < current->data) {
+                temp = temp->next;
+            }
+            current->next = temp->next;
+            temp->next = current;
+        }
+        
+        current = next;
+    }
+    
+    return triee;
+}
+
+// Trier une liste double (tri par insertion)
+NodeDouble* trierListeDouble(NodeDouble* head) {
+    if (head == NULL || head->next == NULL) {
+        return head;
+    }
+    
+    NodeDouble* triee = NULL;
+    NodeDouble* current = head;
+    
+    while (current != NULL) {
+        NodeDouble* next = current->next;
+        
+        // Insérer current dans la liste triée
+        if (triee == NULL || triee->data >= current->data) {
+            current->next = triee;
+            current->prev = NULL;
+            if (triee != NULL) {
+                triee->prev = current;
+            }
+            triee = current;
+        } else {
+            NodeDouble* temp = triee;
+            while (temp->next != NULL && temp->next->data < current->data) {
+                temp = temp->next;
+            }
+            current->next = temp->next;
+            current->prev = temp;
+            if (temp->next != NULL) {
+                temp->next->prev = current;
+            }
+            temp->next = current;
+        }
+        
+        current = next;
+    }
+    
+    return triee;
 }
 
 
@@ -248,6 +342,7 @@ NodeSimple* creerListeSimple(int arr[], int n) {
     return head;
 }
 
+// FONCTIONS DE SAISIES
 
 NodeSimple* saisirListeSimple() {
     int n, element;
@@ -322,7 +417,7 @@ void afficherMenu() {
     printf("Votre choix : ");
 }
 
-// MAIN PROGRAM
+// FONCTION PRINCIPKLE
 
 int main() {
     printf("=== EXERCICES INF 231 - LISTES CHAÎNÉES ===\n");
@@ -351,10 +446,20 @@ int main() {
             
             case 2: {
                 printf("\n--- INSERTION TRIÉE (LISTE SIMPLE) ---\n");
-                printf("Créez votre liste triée initiale :\n");
+                printf("Créez votre liste initiale :\n");
                 NodeSimple* liste = saisirListeSimple();
                 printf("Liste initiale : ");
                 afficherListeSimple(liste);
+                
+                // Vérifier si la liste est triée
+                if (!estTrieSimple(liste)) {
+                    printf(" La liste n'est PAS triée ! Tri en cours...\n");
+                    liste = trierListeSimple(liste);
+                    printf("Liste après tri : ");
+                    afficherListeSimple(liste);
+                } else {
+                    printf("✓ La liste est déjà triée.\n");
+                }
                 
                 int element;
                 printf("Quel élément voulez-vous insérer ? ");
@@ -368,10 +473,20 @@ int main() {
             
             case 3: {
                 printf("\n--- INSERTION TRIÉE (LISTE DOUBLE) ---\n");
-                printf("Créez votre liste triée initiale :\n");
+                printf("Créez votre liste initiale :\n");
                 NodeDouble* liste = saisirListeDouble();
                 printf("Liste initiale : ");
                 afficherListeDouble(liste);
+                
+                // Vérifier si la liste est triée
+                if (!estTrieDouble(liste)) {
+                    printf(" La liste n'est PAS triée ! Tri en cours...\n");
+                    liste = trierListeDouble(liste);
+                    printf("Liste après tri : ");
+                    afficherListeDouble(liste);
+                } else {
+                    printf("✓ La liste est déjà triée.\n");
+                }
                 
                 int element;
                 printf("Quel élément voulez-vous insérer ? ");
